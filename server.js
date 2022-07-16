@@ -1,56 +1,73 @@
-const io = require("socket.io")(8000, {
-  cors: {
-    origin: ["https://www.codisfaction.com"],
-  },
+const express = require("express");
+const http = require("http");
+const app = express();
+const cors = require('cors')
+const server = http.createServer(app);
+const socket = require("socket.io");
+const io = socket(server,{
+  cors:["http://localhost:3000","https://www.codisfaction.com"]
 });
 
-let users = [];
+let users=[]
 
-const messages = {
-  jokes: [],
-  general: [],
-};
+const messages={
+  jokes:[],
+  general:[]
+}
+app.use(cors())
 
-io.on("connection", (socket) => {
-  socket.on("join server", (username) => {
-    const user = {
+app.get("/",(req,res)=>{
+  res.json({
+    success:true
+  })
+})
+
+io.on("connection", socket => {
+
+  socket.on('join server',(username)=>{
+    const user={
       username,
-      id: socket.id,
-    };
+      id:socket.id
+    }
     users.push(user);
-    io.emit("new user", users);
-  });
-  socket.on("join room", (roomName, cd) => {
-    socket.join(roomName);
-    cd(messages[roomName]);
-  });
-  socket.on("send message", ({ content, to, sender, chatName, isChannel }) => {
-    if (isChannel) {
-      const payload = {
-        content,
-        chatName,
-        sender,
-      };
-      socket.to(to).emit("new message", payload);
-    } else {
-      const payload = {
-        content,
-        chatName: sender,
-        sender,
-      };
-      socket.to(to).emit("new message", payload);
+    io.emit("new user",users)
+  })
+  socket.on('join room',(roomName,cd)=>{
+     socket.join(roomName)
+    cd(messages[roomName])
+  })
+  socket.on('send message',({content,to,sender,chatName,isChannel})=>{
+   if(isChannel){
+    const payload={
+      content,
+      chatName,
+      sender
     }
-
-    if (messages[chatName]) {
-      messages[chatName].push({
-        sender,
-        content,
-      });
+   socket.to(to).emit("new message",payload)
+   }else{
+    const payload={
+      content,
+      chatName:sender,
+      sender
     }
-  });
+   socket.to(to).emit("new message",payload)
+   }
+   
+   if(messages[chatName]){
+    messages[chatName].push({
+      sender,
+      content
+    })
+   }
 
-  socket.on("disconnect", () => {
-    users = users.filter((u) => u.id !== socket.id);
-    io.emit("new user", users);
-  });
-});
+  })
+
+  socket.on("disconnect",()=>{
+    users=users.filter(u=>u.id !== socket.id);
+    io.emit("new user",users)
+  })
+
+})
+
+
+server.listen(8000, () => console.log("server is running on port 8000"));
