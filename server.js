@@ -4,7 +4,7 @@ const app = express();
 const server = http.createServer(app);
 const socket = require("socket.io");
 const io = socket(server,{
-  cors:["http://localhost:3000"]
+  cors:["http://localhost:3000","https://www.codisfaction.com"]
 });
 
 let users=[]
