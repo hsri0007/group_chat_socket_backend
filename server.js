@@ -6,7 +6,7 @@ const server = http.createServer(app);
 const socket = require("socket.io");
 const io = socket(server, {
   cors: {
-    origin: "https://www.codisfaction.com",
+    origin: ["http://localhost:3000","https://www.codisfaction.com"],
     methods: ["GET", "POST"],
     allowedHeaders: ["content-type"],
   },
