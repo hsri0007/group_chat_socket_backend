@@ -4,8 +4,13 @@ const app = express();
 const cors = require('cors')
 const server = http.createServer(app);
 const socket = require("socket.io");
-const io = socket(server,{
-  cors:["http://localhost:3000","https://www.codisfaction.com"]
+const io = socket(server, {
+  path: "/socket.io",
+  cors: {
+    origin: ["http://localhost:3000","https://codisfaction.com"],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["content-type"],
+  },
 });
 
 let users=[]
@@ -70,4 +75,5 @@ io.on("connection", socket => {
 })
 
 
-server.listen(8000, () => console.log("server is running on port 8000"));
+const port = process.env.PORT || 8000;
+server.listen(port, () => console.log(`Server running on port ${port}`));
