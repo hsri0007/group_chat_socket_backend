@@ -5,7 +5,6 @@ const cors = require('cors')
 const server = http.createServer(app);
 const socket = require("socket.io");
 const io = socket(server, {
-  path: "/socket.io",
   cors: {
     origin: "https://www.codisfaction.com",
     methods: ["GET", "POST"],
